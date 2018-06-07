@@ -6,8 +6,6 @@ import net.liftweb.json.DefaultFormats
 import net.liftweb.json.Serialization.write
 
 trait MongoEntity {
-  var _id: String = _
-
   def MongoEntity(): DBObject = {
     implicit val formats = DefaultFormats
     val jsonString = write(this)
