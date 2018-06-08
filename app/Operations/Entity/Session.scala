@@ -4,4 +4,4 @@ import java.util.{Calendar, Date}
 
 import CQRS.Provider.MongoDB.MongoEntity
 
- final case class Session( UserId: String,CDate : String) extends MongoEntity
+ final case class Session( UserId: String,CDate : Date) extends MongoEntity

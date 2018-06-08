@@ -18,8 +18,7 @@ case class SignInQuery(Login: String, Password: String) extends QueryBase[Option
 
     val option = Repository.GetSome[User](criteria).headOption
     option.map(z => {
-      val string2 = Calendar.getInstance.getTime.toString
-      val session = Session("asd", string2)
+      val session = Session(z._id, Calendar.getInstance.getTime)
       val value = Repository.Save[Session](session)
       val string = value.toString
       string

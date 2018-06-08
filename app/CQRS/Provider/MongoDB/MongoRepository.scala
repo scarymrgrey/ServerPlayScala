@@ -4,12 +4,10 @@ import CQRS.Base.TRepository
 import com.mongodb.{DBObject, FongoDB, WriteResult}
 import org.json4s._
 import org.json4s.native.JsonMethods._
-
 import scala.collection.JavaConverters._
 import scala.reflect.runtime.universe
 import scala.reflect.runtime.universe._
 
-case class Child(name: String, age: Int, birthdate: Option[java.util.Date])
 
 class MongoRepository(db: => FongoDB) extends TRepository {
 
@@ -25,12 +23,9 @@ class MongoRepository(db: => FongoDB) extends TRepository {
 
   override def Save[T](_entity: T)(implicit p: TypeTag[T]): Object = {
     val collection = db.getCollection(p.tpe.toString)
-    val entity = _entity.asInstanceOf[MongoEntity]
-    val result: WriteResult = collection.save(entity.MongoEntity())
-    val o = result.getN
-    val o2 =result.isUpdateOfExisting
-    val o3 =result.getUpsertedId
-    o3
+    val entity = _entity.asInstanceOf[MongoEntity].MongoEntity()
+    val result: WriteResult = collection.save(entity)
+    entity.get("_id")
   }
 
   override def GetSome[T: Manifest](predicate: DBObject)(implicit t: universe.TypeTag[T]): Seq[T] = {
@@ -38,8 +33,6 @@ class MongoRepository(db: => FongoDB) extends TRepository {
     collection.find(predicate)
       .toArray
       .asScala
-      .map(r => {
-       parse(r.toString).extract[T]
-      })
+      .map(r => parse(r.toString).extract[T])
   }
 }

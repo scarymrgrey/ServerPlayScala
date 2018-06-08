@@ -1,5 +1,4 @@
 package CQRS.Base
-class A{}
 
 abstract class MessageBase() {
   private var unitOfWork : TUnitOfWork = _
