@@ -10,3 +10,5 @@ final case class User(login: String, password: String) extends MongoEntity {
     this._id = _id.obj.toString
   }
 }
+
+

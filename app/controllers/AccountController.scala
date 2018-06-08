@@ -17,10 +17,13 @@ class AccountController @Inject()(cc: ControllerComponents) extends BaseControll
     )
   }
 
-  def signIn() : Action[JsValue] = Action(parse.json) { implicit request =>
+  def signIn(): Action[JsValue] = Action(parse.json) { implicit request =>
     request.body.validate[SignInQuery].fold(
       errors => BadRequest(errors.mkString),
-      query => HttpOk(Dispatcher.Query(query))
+      query => Dispatcher.Query(query) match {
+        case Some(a) => Ok(a)
+        case None => Forbidden
+      }
     )
   }
 }
