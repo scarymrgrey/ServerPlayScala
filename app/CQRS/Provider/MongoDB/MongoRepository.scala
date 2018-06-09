@@ -1,13 +1,16 @@
 package CQRS.Provider.MongoDB
 
 import CQRS.Base.TRepository
+import com.mongodb.casbah.MongoCollection
+import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.{DBObject, FongoDB, WriteResult}
+import org.bson.types.ObjectId
 import org.json4s._
 import org.json4s.native.JsonMethods._
+
 import scala.collection.JavaConverters._
 import scala.reflect.runtime.universe
 import scala.reflect.runtime.universe._
-
 
 class MongoRepository(db: => FongoDB) extends TRepository {
 
@@ -19,6 +22,12 @@ class MongoRepository(db: => FongoDB) extends TRepository {
       .toArray
       .asScala
       .map(r => parse(r.toString).extract[T])
+  }
+
+  override def GetById[T: Manifest](id: String)(implicit t: TypeTag[T]): Option[T] = {
+    new MongoCollection(db.getCollection(t.tpe.toString))
+      .findOneByID(new ObjectId(id))
+      .map(a => parse(a.toString).extract[T])
   }
 
   override def Save[T](_entity: T)(implicit p: TypeTag[T]): Object = {
