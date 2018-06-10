@@ -2,6 +2,7 @@ package CQRS.Base
 
 import com.mongodb.DBObject
 
+import scala.reflect.runtime.universe
 import scala.reflect.runtime.universe._
 
 trait TRepository {
@@ -11,5 +12,9 @@ trait TRepository {
 
   def GetById[T: Manifest](id: String)(implicit t: TypeTag[T]): Option[T]
 
-  def Save[T](entity: T)(implicit p: TypeTag[T]): Object
+  def Save[T: Manifest](entity: T)(implicit p: TypeTag[T]): Object
+
+  def DeleteById[T: Manifest](id: String)(implicit p: TypeTag[T])
+
+  def Modify[T: Manifest](entity: T)(implicit p: universe.TypeTag[T])
 }

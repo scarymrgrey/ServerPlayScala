@@ -7,21 +7,27 @@ import javax.inject._
 import play.api.libs.json.JsValue
 import play.api.mvc._
 
+import scala.util.{Success, Try,Failure}
+
 @Singleton
 class AccountController @Inject()(cc: ControllerComponents) extends BaseController(cc) {
 
   def signUp(): Action[JsValue] = Action(parse.json) { implicit request =>
     request.body.validate[CreateNewUserCommand].fold(
       errors => BadRequest(errors.mkString),
-      command => HttpOk(Dispatcher.Push(command))
+      command => Try(Dispatcher.Push(command)) match {
+        case Success(_) => Ok("Created")
+        case Failure(_) => Conflict("User exist")
+      }
     )
   }
 
   def signIn(): Action[JsValue] = Action(parse.json) { implicit request =>
+    class Response(val session: String)
     request.body.validate[SignInQuery].fold(
       errors => BadRequest(errors.mkString),
       query => Dispatcher.Query(query) match {
-        case Some(a) => Ok(a)
+        case Some(session) => HttpOk(new Response(session))
         case None => Forbidden
       }
     )

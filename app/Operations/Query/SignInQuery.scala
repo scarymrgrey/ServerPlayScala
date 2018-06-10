@@ -23,5 +23,6 @@ case class SignInQuery(Login: String, Password: String) extends QueryBase[Option
         val session = Session(z._id, Calendar.getInstance.getTime)
         Repository.Save[Session](session).toString
       })
+
   }
 }
