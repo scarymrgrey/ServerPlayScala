@@ -54,6 +54,11 @@ class MongoRepository(db: => FongoDB) extends TRepository {
     collection.findAndRemove(MongoDBObject("_id" -> new ObjectId(id)))
   }
 
+  override def DeleteSome[T: Manifest](predicate: DBObject)(implicit p: universe.TypeTag[T]): Unit = {
+    val collection = db.getCollection(p.tpe.toString)
+    collection.remove(predicate)
+  }
+
   override def Modify[T: Manifest](_entity: T)(implicit p: universe.TypeTag[T]): Unit = {
     val collection = db.getCollection(p.tpe.toString)
     val entity = _entity.asInstanceOf[MongoEntity]

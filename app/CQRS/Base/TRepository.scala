@@ -16,5 +16,7 @@ trait TRepository {
 
   def DeleteById[T: Manifest](id: String)(implicit p: TypeTag[T])
 
+  def DeleteSome[T: Manifest](predicate: DBObject)(implicit p: universe.TypeTag[T])
+
   def Modify[T: Manifest](entity: T)(implicit p: universe.TypeTag[T])
 }

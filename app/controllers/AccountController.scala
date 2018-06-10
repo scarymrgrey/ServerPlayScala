@@ -7,7 +7,7 @@ import javax.inject._
 import play.api.libs.json.JsValue
 import play.api.mvc._
 
-import scala.util.{Success, Try,Failure}
+import scala.util.{Failure, Success, Try}
 
 @Singleton
 class AccountController @Inject()(cc: ControllerComponents) extends BaseController(cc) {
@@ -17,6 +17,7 @@ class AccountController @Inject()(cc: ControllerComponents) extends BaseControll
       errors => BadRequest(errors.mkString),
       command => Try(Dispatcher.Push(command)) match {
         case Success(_) => Ok("Created")
+        case Failure(_ : IllegalArgumentException) => BadRequest("Validation error")
         case Failure(_) => Conflict("User exist")
       }
     )
