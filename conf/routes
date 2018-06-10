@@ -9,5 +9,7 @@ GET     /                           controllers.HomeController.index
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
-POST    /account/signup                 controllers.AccountController.signUp
-POST    /account/signin                 controllers.AccountController.signIn
+POST    /user                       controllers.AccountController.signUp
+POST    /user/login                 controllers.AccountController.signIn
+
+POST    /game                       controllers.GameController.newGame
