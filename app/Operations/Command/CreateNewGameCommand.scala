@@ -1,7 +1,7 @@
 package Operations.Command
 
 import CQRS.Base.CommandBase
-import Operations.Entity.User
+import Operations.Entity.{Game, User}
 import com.mongodb.casbah.Imports.MongoDBObject
 import play.api.libs.json.Json
 
@@ -25,5 +25,11 @@ final case class CreateNewGameCommand(
     val firstStep = getUser(first_step_by)
     require(firstStep nonEmpty ,"first_step_by not exist")
     require(List(currentUser.login,opponent) contains firstStep.head.login)
+
+    Repository.Save[Game](Game(size = size ,
+      next_step = first_step_by,
+      crosses_length_to_win = crosses_length_to_win,
+      players = Array(opponent,currentUser.login)
+    ))
   }
 }

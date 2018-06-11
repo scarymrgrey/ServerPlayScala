@@ -16,12 +16,18 @@ class MongoRepository(db: => FongoDB) extends TRepository {
 
   implicit val formats = DefaultFormats
 
+  private def extract[T: Manifest](obj: DBObject): T = {
+    parse(obj.toString).transformField {
+      case JField("_id", JObject(List(Tuple2(a: String, b: JString)))) => ("_id", b)
+    }.extract[T]
+  }
+
   override def GetAll[T: Manifest]()(implicit t: TypeTag[T]): Seq[T] = {
     val collection = db.getCollection(t.tpe.toString).find()
     val result = collection
       .toArray
       .asScala
-      .map(r => parse(r.toString).extract[T])
+      .map(extract[T])
     collection.close()
     result
   }
@@ -29,7 +35,7 @@ class MongoRepository(db: => FongoDB) extends TRepository {
   override def GetById[T: Manifest](id: String)(implicit t: TypeTag[T]): Option[T] = {
     new MongoCollection(db.getCollection(t.tpe.toString))
       .findOneByID(new ObjectId(id))
-      .map(a => parse(a.toString).extract[T])
+      .map(extract[T])
   }
 
   override def Save[T: Manifest](_entity: T)(implicit p: TypeTag[T]): Object = {
@@ -44,7 +50,7 @@ class MongoRepository(db: => FongoDB) extends TRepository {
     val ts = collection
       .toArray
       .asScala
-      .map(r => parse(r.toString).extract[T])
+      .map(extract[T])
     collection.close()
     ts
   }
@@ -65,7 +71,7 @@ class MongoRepository(db: => FongoDB) extends TRepository {
     val bObject = entity.MongoEntity()
     bObject.removeField("_id")
     collection.findAndModify(
-      MongoDBObject("_id" -> new ObjectId(entity._id)),
+      MongoDBObject("_id" -> new ObjectId(entity._id.toString)),
       bObject)
   }
 }
