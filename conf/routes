@@ -11,6 +11,8 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 
 POST    /user                       controllers.AccountController.signUp
 POST    /user/login                 controllers.AccountController.signIn
+GET     /user                       controllers.AccountController.getUsersByFilter(limit: Int,offset : Int)
+GET     /user/:username             controllers.AccountController.getUserByName(username : String)
 
 GET     /game/:id                   controllers.GameController.getGame(id: String)
 POST    /game                       controllers.GameController.newGame

@@ -2,7 +2,8 @@ package controllers
 
 import CQRS.Base.Dispatcher
 import Operations.Command.{CreateNewUserCommand, LogOutCommand, ResetCommand}
-import Operations.Query.{GetGamesByFilterQuery, GetUsersByFilterQuery, SignInQuery}
+import Operations.Entity.Game
+import Operations.Query._
 import javax.inject._
 import play.api.libs.json.JsValue
 import play.api.mvc.{Action, _}
@@ -46,6 +47,13 @@ class AccountController @Inject()(cc: ControllerComponents) extends BaseControll
     Try(Dispatcher.Query(GetUsersByFilterQuery(limit,offset))) match {
       case Success(users) => HttpOk(users)
       case Failure(_) => BadRequest
+    }
+  }
+
+  def getUserByName(username: String): Action[AnyContent] = Action { implicit request =>
+    Dispatcher.Query(GetUserByNameQuery(username)) match {
+      case Some(user) => HttpOk(user)
+      case None => NotFound
     }
   }
 
