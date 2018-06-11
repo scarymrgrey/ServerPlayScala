@@ -1,11 +1,11 @@
 package controllers
 
 import CQRS.Base.Dispatcher
-import Operations.Command.CreateNewUserCommand
-import Operations.Query.SignInQuery
+import Operations.Command.{CreateNewUserCommand, LogOutCommand, ResetCommand}
+import Operations.Query.{GetGamesByFilterQuery, GetUsersByFilterQuery, SignInQuery}
 import javax.inject._
 import play.api.libs.json.JsValue
-import play.api.mvc._
+import play.api.mvc.{Action, _}
 
 import scala.util.{Failure, Success, Try}
 
@@ -17,7 +17,7 @@ class AccountController @Inject()(cc: ControllerComponents) extends BaseControll
       errors => BadRequest(errors.mkString),
       command => Try(Dispatcher.Push(command)) match {
         case Success(_) => Ok("Created")
-        case Failure(_ : IllegalArgumentException) => BadRequest("Validation error")
+        case Failure(_: IllegalArgumentException) => BadRequest("Validation error")
         case Failure(_) => Conflict("User exist")
       }
     )
@@ -35,5 +35,27 @@ class AccountController @Inject()(cc: ControllerComponents) extends BaseControll
         case Failure(_) => BadRequest
       }
     )
+  }
+
+  def logout(): Action[AnyContent] = Authenticated(parse.default) { implicit request =>
+    Dispatcher.Push(LogOutCommand(request.user))
+    Ok
+  }
+
+  def getUsersByFilter(limit: Int,offset : Int): Action[AnyContent] = Action { implicit request =>
+    Try(Dispatcher.Query(GetUsersByFilterQuery(limit,offset))) match {
+      case Success(users) => HttpOk(users)
+      case Failure(_) => BadRequest
+    }
+  }
+
+  def reset() = Action { implicit request =>
+    request.headers.get("admin") match {
+      case Some(_) => {
+        Dispatcher.Push(ResetCommand())
+        Ok
+      }
+      case None => Unauthorized
+    }
   }
 }

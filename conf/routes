@@ -16,3 +16,6 @@ GET     /game/:id                   controllers.GameController.getGame(id: Strin
 POST    /game                       controllers.GameController.newGame
 
 GET     /game                       controllers.GameController.getGamesByFilter(limit: Int,offset : Int)
+
+POST    /user/logout                 controllers.AccountController.logout
+POST    /debug/reset                 controllers.AccountController.reset

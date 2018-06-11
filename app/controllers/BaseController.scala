@@ -13,11 +13,11 @@ import play.api.mvc.{Action, _}
 case class AuthRequest[A](user: User, request: Request[A])
   extends WrappedRequest(request)
 
-abstract class BaseController(cc: ControllerComponents) extends AbstractController(cc)  {
+abstract class BaseController(cc: ControllerComponents) extends AbstractController(cc) {
   implicit val formats = DefaultFormats
 
   def HttpOk[T](res: T): Result = {
-    val str = write(res).replace("_id","id")
+    val str = write(res).replace("_id", "id")
     Ok(str)
   }
 
@@ -30,18 +30,17 @@ abstract class BaseController(cc: ControllerComponents) extends AbstractControll
           tenSecBeforeNow.add(Calendar.SECOND, -200)
           if (s.CDate.before(tenSecBeforeNow.getTime)) {
             Dispatcher.Push(DeleteEntityCommand[Session](s._id.toString))
-            forbid
+            Unauthorized
           } else {
             Dispatcher.Push(ExtendSessionCommand(s._id.toString))
-            val maybeUser = Dispatcher.Query(GetEntityById[User](s.UserId))
-            maybeUser
+            Dispatcher.Query(GetEntityById[User](s.UserId))
               .map(user => action(AuthRequest(user, request)))
               .get
           }
         }
         case None => forbid
       }
-      case None => forbid
+      case None => Unauthorized
     }
   }
 

@@ -16,7 +16,7 @@ case class SignInQuery(Login: String, Password: String) extends QueryBase[Option
   override def ExecuteResult(): Option[String] = {
     require((8 until 100) contains Password.length)
     require((3 until 20) contains Login.length)
-    
+
     val hash = Dispatcher.Query(GetHashFromStringQuery(Password))
     val criteria = MongoDBObject("login" -> Login, "password" -> hash)
 
