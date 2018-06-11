@@ -26,10 +26,13 @@ class AccountController @Inject()(cc: ControllerComponents) extends BaseControll
   def signIn(): Action[JsValue] = Action(parse.json) { implicit request =>
     class Response(val session: String)
     request.body.validate[SignInQuery].fold(
-      errors => BadRequest(errors.mkString),
-      query => Dispatcher.Query(query) match {
-        case Some(session) => HttpOk(new Response(session))
-        case None => Forbidden
+      errors => BadRequest,
+      query => Try(Dispatcher.Query(query)) match {
+        case Success(session) => session match {
+          case Some(sValue) => HttpOk(new Response(sValue))
+          case None => Forbidden
+        }
+        case Failure(_) => BadRequest
       }
     )
   }
