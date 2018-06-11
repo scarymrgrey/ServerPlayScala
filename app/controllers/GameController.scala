@@ -3,7 +3,7 @@ package controllers
 import CQRS.Base.Dispatcher
 import Operations.Command.CreateNewGameCommand
 import Operations.Entity.Game
-import Operations.Query.{GetEntityById, GetGameByIdQuery}
+import Operations.Query.{GetEntityById, GetGamesByFilterQuery}
 import javax.inject._
 import play.api.libs.json.JsValue
 import play.api.mvc._
@@ -17,6 +17,13 @@ class GameController @Inject()(cc: ControllerComponents) extends BaseController(
     Dispatcher.Query(GetEntityById[Game](id)) match {
       case Some(game) => HttpOk(game)
       case None => NotFound
+    }
+  }
+
+  def getGamesByFilter(limit: Int,offset : Int): Action[AnyContent] = Action { implicit request =>
+    Try(Dispatcher.Query(GetGamesByFilterQuery(limit,offset))) match {
+      case Success(game) => HttpOk(game)
+      case Failure(_) => BadRequest
     }
   }
 

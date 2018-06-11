@@ -15,3 +15,4 @@ POST    /user/login                 controllers.AccountController.signIn
 GET     /game/:id                   controllers.GameController.getGame(id: String)
 POST    /game                       controllers.GameController.newGame
 
+GET     /game                       controllers.GameController.getGamesByFilter(limit: Int,offset : Int)
