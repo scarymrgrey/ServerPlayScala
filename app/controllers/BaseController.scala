@@ -27,7 +27,7 @@ abstract class BaseController(cc: ControllerComponents) extends AbstractControll
       case Some(session) => Dispatcher.Query(GetSessionByUUIDQuery(session.toString)) match {
         case Some(s) => {
           val tenSecBeforeNow = Calendar.getInstance()
-          tenSecBeforeNow.add(Calendar.SECOND, -200)
+          tenSecBeforeNow.add(Calendar.SECOND, -10)
           if (s.CDate.before(tenSecBeforeNow.getTime)) {
             Dispatcher.Push(DeleteEntityCommand[Session](s._id.toString))
             Unauthorized
