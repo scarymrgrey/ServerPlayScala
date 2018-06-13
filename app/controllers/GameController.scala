@@ -1,7 +1,7 @@
 package controllers
 
 import CQRS.Base.Dispatcher
-import Operations.Command.CreateNewGameCommand
+import Operations.Command.{CreateNewGameCommand, MakeStepCommand, NotFoundException}
 import Operations.Entity.Game
 import Operations.Query.{GetEntityById, GetGamesByFilterQuery}
 import javax.inject._
@@ -33,8 +33,23 @@ class GameController @Inject()(cc: ControllerComponents) extends BaseController(
       command => {
         command.currentUser = request.user
         Try(Dispatcher.Push(command)) match {
-          case Success(_) => Ok("Created")
+          case Success(_) => HttpOk(command.Result)
           case Failure(e: IllegalArgumentException) => BadRequest(e.getMessage)
+        }
+      }
+    )
+  }
+
+  def makeStep(id : String): Action[JsValue] = Authenticated(parse.json) { implicit request =>
+    request.body.validate[MakeStepCommand].fold(
+      _ => BadRequest("Validation error"),
+      command => {
+        command.currentUser = request.user
+        command.gameId = id
+        Try(Dispatcher.Push(command)) match {
+          case Success(_) => HttpOk(command.Result)
+          case Failure(e: IllegalArgumentException) => BadRequest(e.getMessage)
+          case Failure(_: NotFoundException) => NotFound
         }
       }
     )

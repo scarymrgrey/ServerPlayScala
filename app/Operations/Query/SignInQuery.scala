@@ -11,14 +11,14 @@ object SignInQuery {
   implicit val fmt = Json.format[SignInQuery]
 }
 
-case class SignInQuery(Login: String, Password: String) extends QueryBase[Option[String]] {
+case class SignInQuery(username: String, password: String) extends QueryBase[Option[String]] {
 
   override def ExecuteResult(): Option[String] = {
-    require((8 until 100) contains Password.length)
-    require((3 until 20) contains Login.length)
+    require((8 until 100) contains password.length)
+    require((3 until 20) contains username.length)
 
-    val hash = Dispatcher.Query(GetHashFromStringQuery(Password))
-    val criteria = MongoDBObject("login" -> Login, "password" -> hash)
+    val hash = Dispatcher.Query(GetHashFromStringQuery(password))
+    val criteria = MongoDBObject("login" -> username, "password" -> hash)
 
     Repository.GetSome[User](criteria)
       .headOption

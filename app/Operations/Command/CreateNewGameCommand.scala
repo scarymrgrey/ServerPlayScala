@@ -26,10 +26,13 @@ final case class CreateNewGameCommand(
     require(firstStep nonEmpty ,"first_step_by not exist")
     require(List(currentUser.login,opponent) contains firstStep.head.login)
 
-    Repository.Save[Game](Game(size = size ,
+    val game = Game(size = size,
       next_step = first_step_by,
       crosses_length_to_win = crosses_length_to_win,
-      players = Array(opponent,currentUser.login)
-    ))
+      players = Array(opponent, currentUser.login),
+      field =  Array.ofDim[Int](size(0), size(1))
+    )
+    Repository.Save[Game](game)
+    Result = game
   }
 }

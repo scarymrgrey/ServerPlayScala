@@ -18,7 +18,7 @@ class MongoRepository(db: => FongoDB) extends TRepository {
 
   private def extract[T: Manifest](obj: DBObject): T = {
     parse(obj.toString).transformField {
-      case JField("_id", JObject(List(Tuple2(a: String, b: JString)))) => ("_id", b)
+      case JField("_id", JObject(List(Tuple2(_: String, b: JString)))) => ("_id", b)
     }.extract[T]
   }
 
@@ -42,7 +42,9 @@ class MongoRepository(db: => FongoDB) extends TRepository {
     val collection = db.getCollection(p.tpe.toString)
     val entity = _entity.asInstanceOf[MongoEntity].MongoEntity()
     collection.save(entity)
-    entity.get("_id")
+    val id = entity.get("_id")
+    _entity.asInstanceOf[MongoEntity]._id = id.toString
+    id
   }
 
   override def GetSome[T: Manifest](predicate: DBObject)(implicit t: universe.TypeTag[T]): Seq[T] = {

@@ -11,16 +11,16 @@ object CreateNewUserCommand {
   implicit val fmt = Json.format[CreateNewUserCommand]
 }
 
-final case class CreateNewUserCommand(Login: String, Password: String) extends CommandBase {
+final case class CreateNewUserCommand(username: String, password: String) extends CommandBase {
   @throws(classOf[Exception])
   override def Execute(): Unit = {
-    require((8 until 100) contains Password.length)
-    require((3 until 20) contains Login.length)
-    Repository.GetSome[User](MongoDBObject("login" -> Login)) headOption match {
+    require((8 until 100) contains password.length)
+    require((3 until 20) contains username.length)
+    Repository.GetSome[User](MongoDBObject("login" -> username)) headOption match {
       case Some(_) => throw new Exception
       case None => {
-        val hash = Dispatcher.Query(GetHashFromStringQuery(Password))
-        Repository.Save(User(Login, hash))
+        val hash = Dispatcher.Query(GetHashFromStringQuery(password))
+        Repository.Save(User(username, hash))
       }
     }
   }

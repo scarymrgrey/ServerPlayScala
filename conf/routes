@@ -16,8 +16,9 @@ GET     /user/:username             controllers.AccountController.getUserByName(
 
 GET     /game/:id                   controllers.GameController.getGame(id: String)
 POST    /game                       controllers.GameController.newGame
+POST    /game/:id                   controllers.GameController.makeStep(id: String)
 
 GET     /game                       controllers.GameController.getGamesByFilter(limit: Int,offset : Int)
 
-POST    /user/logout                 controllers.AccountController.logout
-POST    /debug/reset                 controllers.AccountController.reset
+POST    /user/logout                controllers.AccountController.logout
+POST    /debug/reset                controllers.AccountController.reset

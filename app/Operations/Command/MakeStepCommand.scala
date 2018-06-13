@@ -5,33 +5,29 @@ import Operations.Entity.{Game, User}
 import com.mongodb.casbah.Imports.MongoDBObject
 import play.api.libs.json.Json
 
-object CreateNewGameCommand {
-  implicit val fmt = Json.format[CreateNewGameCommand]
+final case class NotFoundException() extends Exception
+
+object MakeStepCommand {
+  implicit val fmt = Json.format[MakeStepCommand]
 }
 
-final case class CreateNewGameCommand(
-                                       opponent: String,
-                                       size: Array[Int],
-                                       first_step_by: String,
-                                       crosses_length_to_win: Int
-                                     ) extends CommandBase {
-  var currentUser : User = _
+final case class MakeStepCommand(step: Array[Int]) extends CommandBase {
+  var currentUser: User = _
+  var gameId: String = _
+
   def getUser(login: String): Option[User] = {
     Repository.GetSome[User](MongoDBObject("login" -> login)).headOption
   }
 
   override def Execute(): Unit = {
-    require(getUser(opponent) nonEmpty,"opponent not exist")
-    val firstStep = getUser(first_step_by)
-    require(firstStep nonEmpty ,"first_step_by not exist")
-    require(List(currentUser.login,opponent) contains firstStep.head.login)
-
-    val game = Game(size = size,
-      next_step = first_step_by,
-      crosses_length_to_win = crosses_length_to_win,
-      players = Array(opponent, currentUser.login)
-    )
-    Repository.Save[Game](game)
-    Result = game
+    require(step.nonEmpty && step.length == 2)
+    Repository.GetById[Game](gameId).fold(throw NotFoundException()) { game =>
+      require(game.players.contains(currentUser.login))
+      val gamerIndex = game.players.indexOf(currentUser.login) + 1
+      require(game.field(step(0))(step(1)) == 0)
+      game.field(step(0))(step(1)) = gamerIndex
+      Repository.Modify[Game](game)
+      Result = game
+    }
   }
 }
