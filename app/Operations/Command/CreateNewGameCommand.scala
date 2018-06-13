@@ -22,6 +22,7 @@ final case class CreateNewGameCommand(
 
   override def Execute(): Unit = {
     require(getUser(opponent) nonEmpty,"opponent not exist")
+    require(opponent != currentUser.login,"U really want to create a match against your self? tut tebe ne tam, siriuzly :P")
     val firstStep = getUser(first_step_by)
     require(firstStep nonEmpty ,"first_step_by not exist")
     require(List(currentUser.login,opponent) contains firstStep.head.login)
