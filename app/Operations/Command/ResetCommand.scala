@@ -7,5 +7,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 final case class ResetCommand() extends CommandBase {
   override def Execute(): Unit = {
     Repository.DeleteSome[Session](MongoDBObject())
+    Repository.DeleteSome[User](MongoDBObject())
+    Repository.DeleteSome[Game](MongoDBObject())
   }
 }
